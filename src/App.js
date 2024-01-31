@@ -1,54 +1,68 @@
 import React, { useState, useEffect } from "react";
-import ProgressBar from "./ProgressBar";
 
-const ProgressBarManager = () => {
-  const [progressBars, setProgressBars] = useState([]);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-  const [generateProgressBar, setGenerateProgressBar] = useState(false);
-  const [generatedCount, setGeneratedCount] = useState(0);
+const ProgressBar = ({ progress }) => (
+  <div style={{ height: "20px", background: "#eee", margin: "10px" }}>
+    <div
+      style={{ width: `${progress}%`, height: "100%", background: "#40A2D8" }}
+    ></div>
+  </div>
+);
 
-  const createProgressBar = () => {
-    if (generatedCount < 5) {
-      const newProgressBar = (
-        <ProgressBar
-          key={progressBars.length}
-          duration={10000}
-          onComplete={() => setGenerateProgressBar(true)}
-        />
-      );
-      setProgressBars((prevProgressBars) => [...prevProgressBars, newProgressBar]);
-      setGeneratedCount((prevCount) => prevCount + 1);
-      setIsButtonDisabled(true);
+const ProgressManager = () => {
+  const [progressList, setProgressList] = useState([]);
+  const [isTimerActive, setIsTimerActive] = useState(false);
+
+  const initiateProgress = () => {
+    setProgressList((prevList) => [...prevList, 0]);
+  };
+
+  function updateProgress() {
+    let indexToUpdate = -1;
+
+    for (let index = 0; index < progressList.length; index++) {
+      const currentProgress = progressList[index];
+
+      if (currentProgress < 100) {
+        indexToUpdate = index;
+        break;
+      }
     }
-  };
 
-  const handleProgressBarComplete = () => {
-    setTimeout(() => {
-      setGenerateProgressBar(true);
-    }, 0);
-  };
+    if (indexToUpdate !== -1) {
+      setIsTimerActive(true);
+
+      setTimeout(() => {
+        setProgressList((prevList) => {
+          const updatedList = [...prevList];
+          updatedList[indexToUpdate] += 10;
+
+          // Make sure the progress doesn't exceed 100
+          if (updatedList[indexToUpdate] > 100) {
+            updatedList[indexToUpdate] = 100;
+          }
+
+          return updatedList;
+        });
+
+        setIsTimerActive(false);
+      }, 1000);
+    }
+  }
 
   useEffect(() => {
-    if (generateProgressBar) {
-      createProgressBar();
-      setGenerateProgressBar(false);
+    if (!isTimerActive && progressList.length >= 1) {
+      updateProgress();
     }
-  }, [generateProgressBar]);
+  }, [isTimerActive, progressList]);
 
   return (
     <div>
-      <button onClick={createProgressBar} disabled={isButtonDisabled}>
-        Create Progress Bar
-      </button>
-      <br />
-      {progressBars.map((progressBar) => (
-        <div key={progressBar.key}>
-          {progressBar}
-          <br />
-        </div>
+      <button onClick={initiateProgress}>Start Progress Bar</button>
+      {progressList.map((progress, index) => (
+        <ProgressBar key={index} progress={progress} />
       ))}
     </div>
   );
 };
 
-export default ProgressBarManager;
+export default ProgressManager;

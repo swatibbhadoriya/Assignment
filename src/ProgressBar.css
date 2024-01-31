@@ -1,9 +1,0 @@
-
-.progress-container {
-  height: 20px;
-  background-color: #2b62ae;
-  transition: width 0.1s linear;
-  width: 100%;
-  border: 1px solid #ccc;
-  margin-top: 10px;
-}
